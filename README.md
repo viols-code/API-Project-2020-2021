@@ -1,7 +1,4 @@
 # API Project 2020/2021
-
-It is forbidden by Politecnico di Milano to publish the code before March 2022
-
 Grade: 30L
 
 
