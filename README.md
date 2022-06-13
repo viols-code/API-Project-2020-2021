@@ -1,5 +1,5 @@
 # API Project 2020/2021
-Grade: 30L
+Grade: 30L/30
 
 
 ## GraphRanker
