@@ -1,7 +1,6 @@
 # API Project 2020/2021
 
 Project for Algorithms and Data structure exam
-![C](https://img.shields.io/badge/C-A8B9CC?logo=C&logoColor=white&style=for-the-badge)
 
 Grade: 30L/30  
 Prof: Davide Martinenghi
@@ -20,6 +19,7 @@ A sequence of commands between
 
 d, k and the number of graphs are representable with 32-bit integers.
 
+![C](https://img.shields.io/badge/C-A8B9CC?logo=C&logoColor=white&style=for-the-badge)
 
 ### AggiungiGrafo
 
