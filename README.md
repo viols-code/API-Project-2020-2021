@@ -2,7 +2,7 @@
 Grade: 30L/30  
 Prof: Davide Martinenghi
 
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg" />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg" width="30"/>
 
 
 ## GraphRanker
