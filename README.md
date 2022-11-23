@@ -1,9 +1,12 @@
 # API Project 2020/2021
+
+Project for Algorithms and Data structure exam
+![C](https://img.shields.io/badge/C-A8B9CC?logo=C&logoColor=white&style=for-the-badge)
+
 Grade: 30L/30  
 Prof: Davide Martinenghi
 
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg" width="30"/>
-
 
 ## GraphRanker
 The goal of the project is the management of a ranking between weighed directed graphs. Chart tracks "best" k graphs.
