@@ -2,10 +2,10 @@
 Grade: 30L/30  
 Prof: Davide Martinenghi
 
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg" />
+
 
 ## GraphRanker
-
-
 The goal of the project is the management of a ranking between weighed directed graphs. Chart tracks "best" k graphs.
 The program to be realized receives in input two parameters, only once (on the first row of the file, separated by space) 
 - d: the number of nodes of the graphs
