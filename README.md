@@ -1,6 +1,6 @@
 # API Project 2020/2021
 
-Project for Algorithms and Data structure exam
+Project for Algorithms and Data Structures' exam
 
 Grade: 30L/30  
 Prof: Davide Martinenghi
