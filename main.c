@@ -2,229 +2,199 @@
 #include <string.h>
 #include <stdlib.h>
 
-
+// A struct for the single graph
 typedef struct{
+    // Distance between the first node and the current node
     unsigned int dist;
+    // 1 if the node has been visited, 0 otherwise
     int visited;
-} Nodo;
+} graph_node;
 
-typedef struct class{
-    unsigned int costo;
-    unsigned int ins;
-    struct class * prec;
-    struct class * next;
-} Class;
+// A struct for the list
+typedef struct list_node{
+    // Total costs of the graph
+    unsigned int cost;
+    // Index of the graph, which is the order of insertion
+    unsigned int idx;
+    // Previous graph on the list
+    struct list_node * prev;
+    // Next graph on the list
+    struct list_node * next;
+} list_node;
+
+// A struct to preserve the beginning and end of the list
+typedef struct{
+    list_node * head;
+    list_node * last;
+} list;
 
 
-unsigned int AggiungiGrafo(unsigned int d){
-    unsigned int i, j, minv, minp, count, costo;
+unsigned int compute_graph_cost(unsigned int d){
+    unsigned min_dist = 0, min_node = 1, count = 0, cost = 0;
     char s[1000000];
-    unsigned int A[d][d];
+    unsigned int adj_matrix[d][d];
+    graph_node cost_matrix[d - 1];
     char * ns;
 
-    for(i = 0; i < d; i++){
+    // Reading the adjacent matrix
+    for(unsigned i = 0; i < d; i++){
         if(!fgets(s, 1000000, stdin)){
-            printf("Errore\n");
+            printf("Error\n");
         }
-
-        A[i][0] = strtol(s, &ns, 10);
-
-        for(j = 1; j < d; j++){
-            A[i][j] = strtol(ns + 1, &ns, 10);
+        adj_matrix[i][0] = strtol(s, &ns, 10);
+        for(unsigned j = 1; j < d; j++){
+            adj_matrix[i][j] = strtol(ns + 1, &ns, 10);
         }
     }
 
-    Nodo P[d - 1];
-
-    minv = 0;
-    minp = 1;
-    count = 0;
-    costo = 0;
-
-    for(i = 0; i < d - 1; i++){
-        P[i].dist = A[0][i + 1];
-        P[i].visited = 0;
-        if(minv == 0){
-            if(A[0][i + 1] != 0){
-                minv = A[0][i + 1];
-                minp = i + 1;
-            }
-        } else {
-            if(minv > A[0][i + 1] && A[0][i + 1] != 0){
-                minp = i + 1;
-                minv = A[0][i + 1];
+    // Set the cost matrix and check if the total cost of the graph is zero
+    for(unsigned i = 0; i < d - 1; i++){
+        // Set the matrix
+        cost_matrix[i].dist = adj_matrix[0][i + 1];
+        cost_matrix[i].visited = 0;
+        // Search for the nearest node to the first node
+        if(min_dist > adj_matrix[0][i + 1] || min_dist == 0){
+            if(adj_matrix[0][i + 1] != 0){
+                min_dist = adj_matrix[0][i + 1];
+                min_node = i + 1;
             }
         }
     }
+    // If no node was reached by the first, the total cost of the graph is zero
+    if(min_dist == 0)
+        return cost;
 
-    if(minv == 0){
-        return costo;
-    }
-
-    costo += minv;
-
-    P[minp - 1].visited = 1;
+    cost += min_dist;
+    cost_matrix[min_node - 1].visited = 1;
     count ++;
 
+    unsigned i, j;
     while(count < d - 1){
-        minv = 0;
-        j = minp;
+        min_dist = 0;
+        j = min_node;
         for(i = 0; i < d - 1; i++){
-            if(P[i].visited == 0){
-                if(P[i].dist == 0){
-                    if(A[j][i + 1] != 0){
-                        P[i].dist = A[j][i + 1] + P[j - 1].dist;
-                    }
-                } else {
-                    if(A[j][i + 1] != 0){
-                        if(P[j - 1].dist + A[j][i + 1] < P[i].dist){
-                            P[i].dist = P[j - 1].dist + A[j][i + 1];
-                        }
-                    }
+            // If the node has already been visited, continue
+            if(cost_matrix[i].visited == 1)
+                continue;
+
+            // Update the distance of the node
+            if(adj_matrix[j][i + 1] != 0){
+                // If the i + 1 node is reached by the current node, check if it is convenient to update the distance
+                if(cost_matrix[i].dist == 0 || cost_matrix[j - 1].dist + adj_matrix[j][i + 1] < cost_matrix[i].dist)
+                    cost_matrix[i].dist = cost_matrix[j - 1].dist + adj_matrix[j][i + 1];
+            }
+            // Find the next node to consider (the one with the minimum distance among the non visited ones)
+            if(min_dist > cost_matrix[i].dist || min_dist == 0){
+                if(cost_matrix[i].dist != 0){
+                    min_dist = cost_matrix[i].dist;
+                    min_node = i + 1;
                 }
-
-                if(minv == 0){
-                    minv = P[i].dist;
-                    minp = i + 1;
-                } else {
-                    if(minv > P[i].dist && P[i].dist != 0){
-                        minv = P[i].dist;
-                        minp = i + 1;
-                    }
-
-                }
-
             }
         }
 
-        P[minp - 1].visited = 1;
-        costo += minv;
+        // If it is not possible to reach any other node
+        if(min_dist == 0)
+            return cost;
+
+        // Update the cost, visited nodes and count
+        cost_matrix[min_node - 1].visited = 1;
+        cost += min_dist;
         count ++;
     }
 
-    return costo;
+    return cost;
+}
+
+list_node * create_new_graph(unsigned int cost, unsigned int idx){
+    // Create a new node for the list of graphs
+    list_node * new_node = malloc(sizeof(list_node));
+    new_node->idx = idx;
+    new_node->cost = cost;
+    new_node->next = NULL;
+    new_node->prev = NULL;
+    return new_node;
+}
+
+list insert_graph(list graphs, unsigned int k, unsigned int cost, unsigned int num){
+    list_node * new_node = NULL;
+    if(num < k)
+        new_node = create_new_graph(cost, num);
+    else{
+        if(cost >= graphs.last->cost)
+            return graphs;
+        // Use the last node in the list, since this will be removed anyway
+        new_node = graphs.last;
+        graphs.last = graphs.last->prev;
+        graphs.last->next = NULL;
+        new_node->next = NULL;
+        new_node->prev = NULL;
+        new_node->cost = cost;
+        new_node->idx = num;
+    }
+
+    if(num == 0){
+        // The graph is the first one
+        graphs.head = new_node;
+        graphs.last = new_node;
+    } else {
+        if(cost < graphs.head->cost){ // The graph has the lowest cost
+            new_node->next = graphs.head;
+            graphs.head->prev = new_node;
+            graphs.head = new_node;
+        } else if(cost >= graphs.last->cost){ // The graph has the highest cost
+            new_node->prev = graphs.last;
+            graphs.last->next = new_node;
+            graphs.last = new_node;
+        } else { // The graph is in the middle
+            list_node * p = graphs.head;
+            while(p->cost <= new_node->cost){
+                p = p->next;
+            }
+            new_node->next = p;
+            new_node->prev = p->prev;
+            p->prev = new_node;
+            (new_node->prev)->next = new_node;
+        }
+    }
+
+    return graphs;
+}
+
+void print_top_k(list graphs){
+    list_node * p = graphs.head;
+    // Print the index of the graphs
+    while(p != NULL){
+        if(p->next == NULL){
+            printf("%u", p->idx);
+        } else{
+            printf("%u ", p->idx);
+        }
+        p = p->next;
+    }
+    printf("\n");
 }
 
 
 int main() {
-    unsigned int d, k, costo, num;
+    unsigned int d, k, cost, num = 0;
     char s1[1000000];
-    char s2[] = "AggiungiGrafo\n";
-    Class * head = NULL;
-    Class * last = NULL;
-    Class * new = NULL;
-    Class * visita = NULL;
-    Class * prima = NULL;
+    list graphs = {NULL, NULL};
 
+    // Read the constants
     if(!scanf("%u %u\n", &d, &k)){
         printf("Errore\n");
     }
 
-    num = 0;
-
     while(fgets(s1, 1000000, stdin) != NULL){
-        if(!strcmp(s1, s2)){
-            costo = AggiungiGrafo(d);
-            if(num < k){
-                if(num == 0){
-                    head = malloc(sizeof(Class));
-                    head->ins = 0;
-                    head->costo = costo;
-                    head->next = NULL;
-                    head->prec = NULL;
-                    last = head;
-                } else {
-                    new = malloc(sizeof(Class));
-                    new->ins = num;
-                    new->costo = costo;
-                    if(costo < head->costo){
-                        new->next = head;
-                        new->prec = NULL;
-                        head->prec = new;
-                        head = new;
-                    } else {
-                        if(costo >= last->costo){
-                            new->next = NULL;
-                            new->prec = last;
-                            last->next = new;
-                            last = new;
-                        } else {
-                            prima = head;
-                            while(prima->costo <= new->costo){
-                                prima = prima->next;
-                            }
-
-                            new->next = prima;
-                            new->prec = prima->prec;
-                            prima->prec = new;
-                            (new->prec)->next = new;
-
-                        }
-                    }
-
-                }
-            } else {
-                if(costo < last->costo){
-                    if(costo < head->costo){
-                        (last->prec)->next = NULL;
-                        visita = last->prec;
-
-                        last->ins = num;
-                        last->costo = costo;
-
-                        last->next = head;
-                        last->prec = NULL;
-                        head->prec = last;
-                        head = last;
-
-                        last = visita;
-                        visita = NULL;
-                    } else{
-                        prima = head;
-                        while(prima->costo <= costo){
-                            prima = prima->next;
-                        }
-
-                        if(prima != last){
-                            (last->prec)->next = NULL;
-                            visita = last->prec;
-
-                            last->ins = num;
-                            last->costo = costo;
-
-                            last->next = prima;
-                            last->prec = prima->prec;
-                            prima->prec = last;
-                            (last->prec)->next = last;
-
-                            last = visita;
-
-                        } else {
-                            last->ins = num;
-                            last->costo = costo;
-                        }
-
-                    }
-                }
-
-            }
-
-            num++;
-
-        } else {
-            visita = head;
-
-            while(visita != NULL){
-                if(visita->next == NULL){
-                    printf("%u", visita->ins);
-                } else {
-                    printf("%u ", visita->ins);
-                }
-                visita = visita->next;
-            }
-
-            printf("\n");
-
+        switch(s1[0]){
+            case 'A': // Add a graph
+                cost = compute_graph_cost(d);
+                graphs = insert_graph(graphs, k, cost, num);
+                num++;
+                break;
+            case 'T': // Print top k graphs
+                print_top_k(graphs);
+                break;
         }
     }
 
